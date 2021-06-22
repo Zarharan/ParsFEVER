@@ -1,0 +1,89 @@
+{% extends  'base.html' %}
+{% load crispy_forms_tags %}
+{% block javascript %}
+<script>
+    $("#flagged").change(function() {
+        get_claim();
+    });
+    $("#id_user").change(function() {
+        get_claim();
+    });
+    get_claim = function(user) {
+        var user = $("#id_user").val();
+        if(user){
+            $.ajax({
+                type : 'POST',
+                url :  "{% url 'get_user_completed_claims' %}",
+                data : {
+                user: user,
+                flag: $("#flagged").is(":checked"),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+                },
+                success : function(response){
+                    $("#input_claim").empty();
+                    if (response.claims.length == 0){
+                        var option = $('<option></option>').attr("value", null).text("No labeled claim...");
+                        $("#input_claim").append(option);
+                        $("#input_claim").prop('disabled', true);
+                        $("#submit").prop('disabled', true);
+                    }
+                    else{
+                        $.each(response.claims, function( key, claim ) {
+                            var option = $('<option></option>').attr("value", claim.id).text(claim.claim_content);
+                            $("#input_claim").append(option);
+                        });
+                        $("#input_claim").prop('disabled', false);
+                        $("#submit").prop('disabled', false);
+                    }
+                },
+                error : function(response){
+                    alarm("Something went wrong");
+                    console.log(response);
+                }
+            });
+        }
+        else{
+            $("#input_claim").empty();
+            var option = $('<option></option>').attr("value", null).text("Choose...");
+            $("#input_claim").append(option);
+            $("#input_claim").prop('disabled', true);
+            $("#submit").prop('disabled', true);
+        }
+    }
+    $("#submit").click(function() {
+        var link = '{% url 'wf2' %}?edit=True&claim_id=CLAIM_ID&user_id=USER_ID';
+        link = link.replace('CLAIM_ID', $("#input_claim").val());
+        link = link.replace('USER_ID', $("#id_user").val());
+        window.location.href = link;
+    });
+</script>
+{% endblock %}
+{% block main %}
+<div><br></div>
+<div class="container">
+    <form>
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group col-md-3">
+          <label>User</label>
+            {{ form.user }}
+        </div>
+        <div class="form-group col-md-1">
+          <label>Flagged</label>
+          <input type="checkbox" class="form-check-input" id="flagged" style="margin-left:20px; margin-top:10px;">
+        </div>
+        <div class="form-group col-md-6">
+          <label>Claim</label>
+          <select id="input_claim" class="form-control" disabled>
+            <option selected>Choose...</option>
+            <option>...</option>
+          </select>
+        </div>
+          <div class="form-group col-md-2">
+              <br>
+            <button id="submit" type="submit" class="btn btn-primary" disabled>Review</button>
+          </div>
+      </div>
+    </form>
+</div>
+{% endblock %}
