@@ -1,0 +1,77 @@
+{% extends  'base.html' %}
+{% load crispy_forms_tags %}
+{% block javascript %}
+<script>
+    $("#id_user").change(function() {
+        var user = $(this).val();
+        if(user){
+            $.ajax({
+                type : 'POST',
+                url :  "{% url 'get_user_pages' %}",
+                data : {
+                user: user,
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+                },
+                success : function(response){
+                    $("#inputPage").empty();
+                    if (response.pages.length == 0){
+                        var option = $('<option></option>').attr("value", null).text("No page...");
+                        $("#inputPage").append(option);
+                        $("#inputPage").prop('disabled', true);
+                        $("#submit").prop('disabled', true);
+                    }
+                    else{
+                        $.each(response.pages, function( key, page ) {
+                            var option = $('<option></option>').attr("value", page.id).text(page.title);
+                            $("#inputPage").append(option);
+                        });
+                        $("#inputPage").prop('disabled', false);
+                        $("#submit").prop('disabled', false);
+                    }
+                },
+                error : function(response){
+                    alarm("Something went wrong");
+                    console.log(response);
+                }
+            });
+        }
+        else{
+            $("#inputPage").empty();
+            var option = $('<option></option>').attr("value", null).text("Choose...");
+            $("#inputPage").append(option);
+            $("#inputPage").prop('disabled', true);
+            $("#submit").prop('disabled', true);
+        }
+    });
+    $("#submit").click(function() {
+        var link = '{% url 'wf1a' %}?edit=True&page_id=PAGE_ID';
+        link = link.replace('PAGE_ID', $("#inputPage").val());
+        window.location.href = link;
+    });
+</script>
+{% endblock %}
+{% block main %}
+<div><br></div>
+<div class="container">
+    <form>
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label>User</label>
+            {{ form.user }}
+        </div>
+        <div class="form-group col-md-6">
+          <label>Page</label>
+          <select id="inputPage" class="form-control" disabled>
+            <option selected>Choose...</option>
+            <option>...</option>
+          </select>
+        </div>
+          <div class="form-group col-md-2">
+              <br>
+            <button id="submit" type="submit" class="btn btn-primary" disabled>Review</button>
+          </div>
+      </div>
+    </form>
+</div>
+{% endblock %}

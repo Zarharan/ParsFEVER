@@ -1,0 +1,49 @@
+<html>
+{% load static %}
+{% load crispy_forms_tags %}
+
+    <head>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+<!--        <link rel="stylesheet" type="text/css" href="{% static '/css/style.css?n=11' %}">-->
+        <link rel="stylesheet" href="/static/css/style.css">
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-route.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-sanitize.js"></script>
+
+
+        <script src="/static/js/Chart.bundle.min.js"></script>
+        <script src="/static/js/angular-chart.min.js"></script>
+        <script src="/static/js/sticky.js?n=12"></script>
+        <script src="/static/js/app.js?n=22"></script>
+
+
+    </head>
+    <link  rel="stylesheet"  href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"  integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"  crossorigin="anonymous">
+
+    <body ng-app="annotateapp">
+
+    <div  class="container">
+      <div  class="row justify-content-center align-items-center">
+        <div  class="col-6">
+            <div class="card" style="margin-top: 25px;">
+            <div class="card-body">
+            <h4 class="card-title">Please log in to your account.</h4>
+
+            <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+
+            {{ form|crispy }}
+
+            <button type="submit" class="btn btn-primary btn-block">Log in</button>
+            </form>
+            </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    </body>
+</html>

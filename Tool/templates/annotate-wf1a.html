@@ -1,0 +1,215 @@
+{% extends  'base.html' %}
+{% load crispy_forms_tags %}
+{% block javascript %}
+<script>
+    $("textarea").change(function() {
+        var text = $(this).val();
+        var textbox = $(this);
+        $.ajax({
+      		type : 'POST',
+      		url :  "{% url 'validate_textbox' %}",
+      		data : {
+      		"text": text,
+            csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+      		success : function(response){
+      		    if (!response.is_valid){
+                    $('#claims_danger').prop('hidden', false);
+                    $('#claims_danger').text(response.message);
+      		        textbox.css("backgroundColor", "red");
+                    $(':input[value="submit"]').prop('disabled', true);
+      		    }
+      		    else{
+                    $('#claims_danger').prop('hidden', true);
+      		        textbox.css("backgroundColor", "white");
+                    $(':input[value="submit"]').prop('disabled', false);
+      		    }
+      		},
+      		error : function(response){
+      			console.log(response)
+      		}
+      	});
+    });
+    $("#next").click(function(e) {
+        e.preventDefault();
+        var link = '/wf1/wf1b/SOURCE_SENTENCE_ID/?edit=True';
+        link = link.replace('SOURCE_SENTENCE_ID', $('input[name="source_sentence"]:checked').val());
+        window.location.href = link;
+    });
+</script>
+{% endblock %}
+{% block main %}
+<div>
+    <form id="W1aForm" action="/wf1/wf1a/?edit={{edit}}" method="post">
+    <div class="container" >
+        <h1>Claim Generation Task (WF1a)</h1>
+        <h4 style="color:red;">
+            {{ form.errors }}
+        </h4>
+        <div ng-show="testingMode">
+            <h4 style="color:red; margin-bottom:0;">Sandbox Environment</h4>
+            <div style="color:red;">Claims you write will be recorded. But will not form part of the final dataset.</div>
+        </div>
+
+        {% if edit == True and request.user == page.user %}
+            <h3 style="color:red; margin-bottom:0;">ATTENTION:</h3>
+            <h4 style="color:red;">You are in edit mode, if you delete or edit any claim, <b>ITS WHOLE MUTATIONS WILL DELETE FOREVER!!!</b></h4>
+        {% endif %}
+        <div class="row topmargin">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="callout">
+                    <h4>Guidelines</h4>
+                    <p>The objective of this task is to <strong>generate true claims</strong> from this source sentence that was extracted from Wikipedia. </p>
+
+                    <ul>
+                        <li><strong>Extract simple factoid claims about {{page.title}}</strong> given the source sentence</li>
+                        <li>Use the <strong>source sentence and dictionary</strong> as the basis for your claims.</li>
+                        <li><strong>Reference any entity directly</strong> (pronouns and nominals should not be used).</li>
+                        <li>Minor variations of names are acceptable (e.g. John F Kennedy, JFK, President Kennedy). </li>
+                        <li><strong>Avoid vague or cautions language</strong> (e.g. might be, may be, could be, is reported that)</li>
+                        <li>Correct capitalisation of entity names should be followed (India rather than india).</li>
+                        <li>Sentences should end with a period.</li>
+                        <li>Numbers can be formatted in any appropriate English format (including as words for smaller quantities).</li>
+                        <li>Some of the extracted text might not be accurate. These are still valid candidates for summary. It is not your job to fact check the information</li>
+
+                    </ul>
+
+                    <h4>World Knowledge</h4>
+
+                    <ul>
+                        <li><strong>Do not</strong> incorporate your own knowledge or beliefs.</li>
+                        <li>Additional Knowledge is given to you in the dictionary. This dictionary contains additional information that may be helpful in making more complex claims. <br/>(we prefer you to use the dictionary because this information can be backed up from Wikipedia)</li>
+                        <li>If the source sentence is not suitable, leave the box blank to skip.</li>
+                        <li>If a dictionary entry is not suitable or uninformative, ignore it.</li>
+                    </ul>
+
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="row topmargin">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <div class="callout left">
+                    <h4>Generating Claims About</h4>
+                </div>
+            </div>
+
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <div class="ebox">
+                    <h4 style="direction:rtl"><strong>{{page.title}}</strong></h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="row topmargin">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <div class="callout left">
+                    <h4>Source Sentence</h4>
+                    <p>Choose source sentence. It is used to substantiate your claims about {{page.title}}</p>
+                </div>
+            </div>
+
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="direction:rtl" >
+                {{ form.source_sentence }}
+            </div>
+
+        </div>
+
+        <div class="row topmargin">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <div class="callout left">
+                    <h4>Dictionary</h4>
+                    <p>Click the word for a definition. These definitions can be used to support the claims you write or make the claims more complex by making a deduction using the dictionary definitions</p>
+                    <p>The dictionary comes from the blue links on Wikipedia. This may be empty if the passage from Wikipedia contains no links.</p>
+                </div>
+            </div>
+
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <div class="ebox">
+                    {% for hyperlink in hyperlinks %}
+                    <div class="dictionary_item" style="direction:rtl"><h4>
+                        <a href="javascript:void(0)" ng-click="show_{{ hyperlink.id }} = ! show_{{ hyperlink.id }}">{{ hyperlink.title }}</a>
+                    </h4> <div ng-show="show_{{ hyperlink.id }}">{{ hyperlink.first_paragraph }}</div></div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="row topmargin">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <div class="callout left">
+                    <h4>True Claims (one per line)</h4>
+                    <p>Aim to spend about 2 minutes generating <strong>2-5</strong> claims from this source sentence</p>
+                    <p>If the source sentence is uninformative, press the skip button</p>
+
+                    <a href="javascript:void(0)" ng-click="show_example = ! show_example">Example</a>
+                    <div ng-show="show_example">
+                        <blockquote>The Amazon River, usually abbreviated to Amazon (US: /ˈæməzɒn/ or UK: /ˈæməzən/; Spanish and Portuguese: Amazonas), in South America is the largest river by discharge volume of water in the world and according to some authors, the longest in length.</blockquote>
+                        <p><strong>Good</strong></p>
+                        <ul>
+                            <li>The Amazon River is located in South America.</li>
+                            <li>The River Amazon is a river in the southern hemisphere.</li>
+                            <li>Amazonas is another name for the Amazon River.</li>
+                            <li>The Amazon is the longest river in the world.</li>
+                            <li>The River Trent is shorter than the Amazon.</li>
+                        </ul>
+                        <p><strong>Bad</strong></p>
+                        <ul>
+                            <li>The Amazon is might be the longest river. <em>('might be' is cautious/vague language)</em></li>
+                            <li>The Amazon River is home to river dolphins. <em>(not explicitly mentioned in text).</em></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                {{ form.claims }}
+                <div class="alert alert-danger alert-dismissible fade in" id="claims_danger" hidden>
+                    Danger!
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            </div>
+
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                {% csrf_token %}
+                {{ form.page_id }}
+                {% if edit == True %}
+                <button id="next" type="submit" class="btn btn-primary">Next (without save)</button>
+                {% endif %}
+                {% if request.user == page.user %}
+                    <input type="submit" name="action" value="submit" class="btn btn-primary"/>
+                {% endif %}
+                <div ng-show="working">Loading</div>
+                <div ng-show="done">Done. Loading next workflow item</div>
+
+            </div>
+        </div>
+    </div>
+    </form>
+        <div class="row">
+
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+            </div>
+
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <form action="/wf1/wf1a/" method="post">
+                {% csrf_token %}
+                {{ form.page_id }}
+                <input type="submit" name="action" value="useless" class="btn"/>
+                <input type="submit" name="action" value="home" class="btn"/>
+                </form>
+            </div>
+        </div>
+
+    <div class="container">
+        <h4 ng-show="testingMode" style="color:red">Sandbox Environment</h4>
+    </div>
+</div>
+{% endblock %}
