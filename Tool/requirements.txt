@@ -1,0 +1,12 @@
+django==3.1.5
+mysqlclient==2.0.3
+django-crispy-forms==1.10.0
+beautifulsoup4==4.9.3
+requests==2.25.1
+nltk==3.5
+pandas==1.2.1
+xlrd==2.0.1
+markdownify==0.6.3
+markdown==3.3.3
+markdown_link_extractor==2020.12.3
+jsonlines==2.0.0
