@@ -1,1 +1,1 @@
-# persian_fever
+# ParsFEVER Annotation Tool
