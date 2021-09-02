@@ -1,6 +1,6 @@
 # ParsFEVER: a Dataset for Farsi Fact Extraction and Verification
 
-This is a repository for our academic paper which describes the process of building our dataset in detail (our persian guidelines) and provides the ParsFEVER dataset.
+This is a repository for our academic paper which describes the process of building our dataset in detail (our persian guidelines) and provides the ParsFEVER dataset and the related tool.
 
 ### Part of the paper's dataset has been uploaded here. 
 
