@@ -13,4 +13,4 @@ ParsFEVER dataset is published under license CC BY-NC. You can find more details
 
 ## The Related Paper
 
-Our academic paper which describes the process of building our dataset in detail and provides full results can be found here: https://sites.google.com/view/starsem2021/accepted-papers?authuser=0 .
+Our academic paper which describes the process of building our dataset in detail and provides full results can be found here: https://aclanthology.org/2021.starsem-1.9.pdf.
